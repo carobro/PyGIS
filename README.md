@@ -1,3 +1,5 @@
 # PyGIS
 
-we will work on the own data
+work with owl data 🦉
+work based on QGIS
+
