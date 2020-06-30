@@ -6,14 +6,16 @@ class Track:
         self.points = points
         
     def getStart(self):
-        return self.points[0]
+        return self.points[0].time
     
     def getEnd(self):
-        return self.points[len(self.points)]
+        return self.points[len(self.points)-1].time
 
     def getDuration(self):
         ## measure duration between Start & end
-        start  = self.points[0]
-        end = self.points[len(self.points)]
-        print(end-start)
+        start = self.getStart()
+        end = self.getEnd()
+        # start  = self.points[0]
+        # end = self.points[len(self.points)-1]
+        return(end-start)
 

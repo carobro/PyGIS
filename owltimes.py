@@ -41,6 +41,7 @@ for owl in owl_ids:
             # append owl_track to track collection and set a new start
             if(date == float(start.strftime("%d"))+1):
                 t1 = Track(start, points)
+
                 owl_tracks.append(t1)
                 # reset variables
                 start = None
