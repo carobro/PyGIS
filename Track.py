@@ -1,9 +1,10 @@
 import time
-
+from Point import Point
 class Track:
-    def __init__(self,points):
+    def __init__(self,start,points):
+        self.start = start
         self.points = points
-
+        
     def getStart(self):
         return self.points[0]
     
