@@ -10,7 +10,7 @@ class Track:
     def getEnd(self):
         return self.points[len(self.points)]
 
-    def getDuration(self)
+    def getDuration(self):
         ## measure duration between Start & end
         start  = self.points[0]
         end = self.points[len(self.points)]
