@@ -1,6 +1,5 @@
 from matplotlib import pyplot as plt
 import csv
-import pandas as pd
 import numpy as np
 import matplotlib
 
@@ -15,7 +14,7 @@ end_r = []
 tagI = []
 hoursR = []
 hoursU = []
-with open('C:/Users/celeb/Desktop/Uni/Master/Python_in_GIS/sampleCSV.csv', 'r') as file:
+with open('C:/Users/caro1/Downloads/sampleCSV_trash.csv', 'r') as file:
     reader = csv.reader(file)
     name = next(reader)[1]
     for row in reader:
@@ -54,62 +53,62 @@ sortedR = []
 sortedU = []
 print(hoursR)
 print(hoursU)
-#
-#k= 0
-#while(k < len(hoursR)):
-#    for i,j in zip(hoursR, hoursU):
-#        #for j in range(0, len(hoursU)):
-#            #if i = 0 || j = 0:
-#            if i != 0 and j != 0:  
-#                if i < j:
-#                    sortedR.append(i)
-#                    sortedU.append(0)
-#                if j > i:
-#                    sortedR.append(0)
-#                    sortedU.append(j)
-#                else:
-#                    sortedU.append(j)
-#                    sortedR.append(i)
-#                
-#
-#            else:
-#                sortedU.append(j)
-#                sortedR.append(i)
-#                
-#            continue
-#            
-#    k = k +1
-#        
-#    
-#print(sortedR)
-#print(sortedU)
-#            
+
+for i,j in zip(hoursR, hoursU):
+    if i != 0 and j != 0:  
+        if i < j:
+            sortedR.append(i)
+            sortedU.append(0)
+        if j > i:
+            sortedR.append(0)
+            sortedU.append(j)
+        else:
+            sortedU.append(j)
+            sortedR.append(i)
+    else:
+        sortedU.append(j)
+        sortedR.append(i)
+
+print(sortedR)
+print(sortedU)
             
-        
-
-labels = 5
-x = np.arange(labels)
-
-width = 0.35
-fig, ax = plt.subplots()
-p1 = ax.bar(x, hoursU, width)
-#p2 = ax.bar(x, hoursR, width)#, bottom=hoursR)
+##################################################################
+# create a stacket bar plot
+#labels = len(sortedR)
+#x = np.arange(labels)
+#
+#width = 0.35
+#labels = ['G1', 'G2', 'G3', 'G4', 'G5', 'G6', 'G7']
+#fig, ax = plt.subplots()
+#ax.bar(labels, sortedU, width, label='Urban')
+#ax.bar(labels, sortedR, width, label='Rural', bottom=sortedU)
+#
+#ax.set_ylabel('Duration hours')
+#ax.set_title('Duration owls')
+#ax.legend()
+#
 #plt.show()
-
-labels = ['G1', 'G2', 'G3', 'G4', 'G5']
+#############################################
+# create a Bar plot plot
 fig, ax = plt.subplots()
+n_groups = len(sortedR)
+index = np.arange(n_groups)
+bar_width = 0.35
+opacity = 0.8
 
+rects1 = plt.bar(index, sortedU, bar_width, alpha=opacity, color='b',
+label='Urban')
+rects2 = plt.bar(index + bar_width, sortedR, bar_width, alpha=opacity, 
+color='orange', label='Rural')
 
-ax.bar(labels, hoursU, width, label='Urban')
-ax.bar(labels, hoursR, width, bottom=hoursU,
-       label='Rural')
+plt.xlabel('duration')
+plt.ylabel('hour section')
+plt.title('Duration owls')
+plt.xticks(index + bar_width, ('A', 'B', 'C', 'D', 'E', 'F'))
+plt.legend()
 
-ax.set_ylabel('Duration hours')
-ax.set_title('Duration owls')
-ax.legend()
-
+plt.tight_layout()
 plt.show()
-
 
 
 
