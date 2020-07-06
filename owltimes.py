@@ -8,9 +8,10 @@ import datetime
 from Owl import Owl
 from Track import Track
 from Point import Point
+from math import sin, cos, sqrt, atan2, radians
 
-owl_ids = ["1750"]
-#owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896","3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
+#owl_ids = ["3893"]
+owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896","3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
 
 driver = ogr.GetDriverByName('ESRI Shapefile')
 analysis_dir = os.path.join('/home','eric','Documents','PyGIS','analysis')
@@ -69,84 +70,127 @@ def getEndAverage(tracks):
 
     return chop_microseconds(avgEnd) 
 
+def divideIntoTracks(layer):
+
+    owl_tracks = []
+    start = None
+    points = []
+
+    for feat in layer:
+
+        timestamp = dateparser.parse(feat.GetField('timestamp'))
+
+        hour = float(timestamp.strftime("%H"))
+        date = float(timestamp.strftime("%d"))
+        p1 = Point([feat.GetField('lat'),feat.GetField('long')],timestamp)
+        # if feat is after 9am
+        if(hour > 9):
+            # if no start is(i.e. beginning of the loop) set start of track
+            if(not(start)):
+                start = dateparser.parse(feat.GetField('timestamp'))
+                points.append(p1)
+                continue
+            # if feat is after 9am and one day after start: a new track begins
+            # append owl_track to track collection and set a new start
+            if(timestamp.date() == start.date()+datetime.timedelta(1)):
+                t1 = Track(start, points)
+                t1 = sortOutTrack(t1)
+                owl_tracks.append(t1)
+                # reset variables
+                start = None
+                points = []
+                start = dateparser.parse(feat.GetField('timestamp'))
+                continue
+        # if feat is on the same date and after the start add it to the track
+        if(date == float(start.strftime("%d"))):
+            points.append(p1)
+            continue
+        # if feat is before nine and one day after the start add it to the track
+        if(float(timestamp.strftime("%H")) < 9):
+            if(timestamp.date() == start.date()+datetime.timedelta(1)):
+                points.append(p1)
+                continue
+    return owl_tracks
+
 def sortOutTrack(track):
 
     endtime = None
     # set start position 
-    start = Point([52.2,3.3],"2012")  
+    start = track.points[0]
+    startIndex = len(track.points)-1
     # create buffer around point (10m) 
-    buffer = start.createBuffer(10)
     watching = False
-    for point in track:
-        if(pointInBuffer(point,buffer)):
-            if(watching):
-                if(tenMinutesPassed):
-                    print("End of hunting found at %s" % point.time )
-                    endtime = point
-                    break
-            else:
-                watching = True
 
-def pointInPolygon(point,polygon):
+    for index,point in enumerate(track.points):
+        hour = float(point.time.strftime("%H"))
+        if(not(hour>0 and hour<6)):
+            continue
+        if(getDistance(start,point) < 20):
+            if(watching):
+                duration = point.time - start.time
+                duration = duration.total_seconds()
+                if(duration>1200):
+                #    print("End of hunting found at %s" % point.time)
+                    startIndex = index
+                    break
+                # else:
+        # print("found point inside 10m radius; continue watching")
+            else:
+                # print("start watching")
+                watching = True
+                continue
+        else:
+            if(watching):
+                #print("covered more than 10m; aborting watching")
+                start = point
+                watching = False
     
 
-    return True
+    newTrack = Track(track.start,track.points[:startIndex])
+    return newTrack
+
+### distance formula for python 
+### provided by:https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude 
+def getDistance(start,end):
+    # approximate radius of earth in km
+    R = 6373.0
+
+    lat1 = radians(start.coordinates[0])
+    lon1 = radians(start.coordinates[1])
+    lat2 = radians(end.coordinates[0])
+    lon2 = radians(end.coordinates[1])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    distance = R * c
+    #print("Result:", distance)
+
+    # multiply by 1000 to get meters
+    return distance*1000
+
 
 def __main__():
     owls = []
+    ### loop over every shapefile available
     for owl in owl_ids:
         print("Now checking Owl with ID %s" % owl)
-        # load data directory & shapefile
+        print("")
+        # load data directory & shapefile dynamically
         data_dir = os.path.join('/home', 'eric', 'Documents',
                                 'PyGIS', 'movebank', 'singleOwls', owl)
         shapefile = os.path.join(data_dir,'%s.shp' % owl)
         data_source = driver.Open(shapefile, 0)
         layer = data_source.GetLayer(0)
-        owl_tracks = []
-        start = None
-        points = []
         # iterate each point in the shapefile
-        for feat in layer:
-            # variable creation for comparisons below
-            #2014-05-25 23:33:07
+        print("Dividing shapefile into individual tracks")
+        owl_tracks = divideIntoTracks(layer)
 
-            timestamp = dateparser.parse(feat.GetField('timestamp'))
-            if (feat.GetField('timestamp') == '2016-04-20 19:00:23'):
-                print("break")
-            hour = float(timestamp.strftime("%H"))
-            date = float(timestamp.strftime("%d"))
-            p1 = Point([feat.GetField('lat'),feat.GetField('long')],timestamp)
-            # if feat is after 9am
-            if(hour > 9):
-                # if no start is(i.e. beginning of the loop) set start of track
-                if(not(start)):
-                    start = dateparser.parse(feat.GetField('timestamp'))
-                    points.append(p1)
-                    continue
-                # if feat is after 9am and one day after start: a new track begins
-                # append owl_track to track collection and set a new start
-                if(timestamp.date() == start.date()+datetime.timedelta(1)):
-                    t1 = Track(start, points)
-
-                    owl_tracks.append(t1)
-                    # reset variables
-                    start = None
-                    points = []
-                    start = dateparser.parse(feat.GetField('timestamp'))
-                    continue
-            # if feat is on the same date and after the start add it to the track
-            if(date == float(start.strftime("%d"))):
-                points.append(p1)
-                continue
-            # if feat is before nine and one day after the start add it to the track
-            if(float(timestamp.strftime("%H")) < 9):
-                if(timestamp.date() == start.date()+datetime.timedelta(1)):
-                    points.append(p1)
-                    continue
-        ### 
         owl1 = Owl(owl,owl_tracks)
         owls.append(owl1)
-        print("Hunting detection done")
         print("Calculating averages")
         analysis = calculateAverages(owl1)
         print("...Done!")
@@ -154,8 +198,9 @@ def __main__():
         print("Writing to csv...")
         with open(csv_file,'a',newline='') as csvfile:
             writer = csv.writer(csvfile,delimiter=',')
-            writer.writerow([owl1.id,analysis[0],analysis[1],analysis[2]])
-            print("New line added")
+            newrow = [owl1.id,analysis[0],analysis[1],analysis[2]]
+            writer.writerow(newrow)
+            print("...new line added: %s" % newrow)
             print("")
 
 if __name__ == "__main__":
