@@ -15,7 +15,8 @@ class Track:
         ## measure duration between Start & end
         start = self.getStart()
         end = self.getEnd()
+        duration = end-start
         # start  = self.points[0]
         # end = self.points[len(self.points)-1]
-        return(end-start)
+        return(duration.total_seconds())
 
