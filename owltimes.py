@@ -61,7 +61,7 @@ def getEndAverage(tracks):
     avgEnd = datetime.timedelta(seconds = avgEnd) 
 
     return chop_microseconds(avgEnd) 
-    
+
 owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896",
             "3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
 driver = ogr.GetDriverByName('ESRI Shapefile')
@@ -70,6 +70,7 @@ analysis_dir = os.path.join('/home','eric','Documents','PyGIS','analysis')
 csv_file = os.path.join(analysis_dir,'results.csv')
 
 for owl in owl_ids:
+    print("Now checking Owl with ID %s" % owl)
     # load data directory & shapefile
     data_dir = os.path.join('/home', 'eric', 'Documents',
                             'PyGIS', 'movebank', 'singleOwls', owl)
@@ -118,11 +119,15 @@ for owl in owl_ids:
     ### 
     owl1 = Owl(owl,owl_tracks)
     owls.append(owl1)
-
+    print("Hunting detection done")
+    print("Calculating averages")
     analysis = calculateAverages(owl1)
-
-
+    print("...Done!")
+    print("")
+    print("Writing to csv...")
     with open(csv_file,'a',newline='') as csvfile:
         writer = csv.writer(csvfile,delimiter=',')
         writer.writerow([owl1.id,analysis[0],analysis[1],analysis[2]])
+        print("New line added")
+        print("")
 
