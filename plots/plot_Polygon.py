@@ -108,10 +108,10 @@ for i in convexhulls:
     xcoords.append(x)
     ycoords.append(y)
     
-#palette = copy(plt.cm.inferno)
-#palette.set_over('y', 1.0)
-#palette.set_under('k', 0.0)
-#palette.set_bad('w', 1.0)
+palette = copy(plt.cm.inferno)
+palette.set_over('y', 1.0)
+palette.set_under('k', 0.0)
+palette.set_bad('w', 1.0)
 
 # Create the plot
 f, ((ax0, ax1), (ax2, ax3), (ax4, ax5)) = plt.subplots(3, 2)
@@ -147,10 +147,10 @@ ax5.imshow(dataset[5], cmap=palette,
                 extent=(mix[5], max[5], miy[5], may[5]))
 ax5.plot(xcoords[5], ycoords[5], 'r-')
 # add the legend
-#f.subplots_adjust(right=0.8)
-#cbar_ax = f.add_axes([0.85, 0.15, 0.05, 0.7])
-#f.colorbar(im, cax=cbar_ax)
-#plt.colorbar(im=im, spacing='proportional')
+f.subplots_adjust(right=0.8)
+cbar_ax = f.add_axes([0.85, 0.15, 0.05, 0.7])
+f.colorbar(im, cax=cbar_ax)
+f.suptitle('Owl Hunting Areas')
 ax0.set_title('urban')
 ax1.set_title('rural')
 
