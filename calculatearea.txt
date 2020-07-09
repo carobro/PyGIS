@@ -1,0 +1,30 @@
+
+from osgeo import ogr
+
+vlayer = iface.activeLayer()
+
+provider = vlayer.dataProvider()
+
+path = provider.dataSourceUri()
+
+tmp = path.split("|")
+
+path_to_shp_data = tmp[0]
+
+driver = ogr.GetDriverByName("ESRI Shapefile")
+data_dir = os.path.join ('C:\\','Users','mirje','OneDrive','Desktop','pig_proj','convexat','1750')
+dataSource = driver.Open(data_dir, 1)
+layer = dataSource.GetLayer()
+new_field = ogr.FieldDefn("Area", ogr.OFTReal)
+new_field.SetWidth(32)
+new_field.SetPrecision(10) #added line to set precision
+layer.CreateField(new_field)
+
+for feature in layer:
+    geom = feature.GetGeometryRef()
+    area = geom.GetArea() 
+    print (area)
+    feature.SetField("Area", area)
+    layer.SetFeature(feature)
+
+dataSource = None
