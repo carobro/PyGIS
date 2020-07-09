@@ -11,25 +11,17 @@ import matplotlib.colors as colors
 data_dir = os.path.join('C:\\', 'Users', 'caro1', 'Documents')
 in_fn = os.path.join(data_dir, 'viirs_npp.tif')
 
+data_dir2 = os.path.join('C:\\', 'Users', 'caro1', 'Downloads', \
+                        'pig_proj', 'convexat')
 ##urban
-in_path = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '4848', 'points_convexhull.shp')
-
-in_path2 = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '5158', 'points_convexhull.shp')
-
-in_path3 = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '3892', 'points_convexhull.shp')
+in_path  = os.path.join(data_dir2, '4848', 'points_convexhull.shp')
+in_path2 = os.path.join(data_dir2, '5158', 'points_convexhull.shp')
+in_path3 = os.path.join(data_dir2, '3892', 'points_convexhull.shp')
 
 ## rural
-in_path4 = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '3897', 'points_convexhull.shp')
-
-in_path5 = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '4846', 'points_convexhull.shp')
-
-in_path6 = os.path.join('C:\\', 'Users', 'caro1', \
-'Downloads', 'pig_proj', 'convexat', '1292', 'points_convexhull.shp')
+in_path4 = os.path.join(data_dir2, '3897', 'points_convexhull.shp')
+in_path5 = os.path.join(data_dir2, '4846', 'points_convexhull.shp')
+in_path6 = os.path.join(data_dir2, '3896', 'points_convexhull.shp')
 
 convexhulls = []
 convexhulls = [in_path,in_path2,in_path3,in_path4,in_path5,in_path6]
