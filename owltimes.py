@@ -10,15 +10,15 @@ from Track import Track
 from Point import Point
 from math import sin, cos, sqrt, atan2, radians
 
-#owl_ids = ["3893"]
+#owl_ids = ["1750"]
 owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896","3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
 
 driver = ogr.GetDriverByName('ESRI Shapefile')
 analysis_dir = os.path.join('/home','eric','Documents','PyGIS','analysis')
-csv_file = os.path.join(analysis_dir,'results.csv')
+csv_file = os.path.join(analysis_dir,'results6pm.csv')
 
-
-
+start_hour = 18
+### cut microseconds for readability
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
 
@@ -80,15 +80,19 @@ def divideIntoTracks(layer):
         timestamp = dateparser.parse(feat.GetField('timestamp'))
 
         hour = float(timestamp.strftime("%H"))
+        minute = float(timestamp.strftime("%M"))
         date = float(timestamp.strftime("%d"))
         p1 = Point([feat.GetField('lat'),feat.GetField('long')],timestamp)
         # if feat is after 9am
         if(hour > 9):
             # if no start is(i.e. beginning of the loop) set start of track
             if(not(start)):
-                start = dateparser.parse(feat.GetField('timestamp'))
-                points.append(p1)
-                continue
+                if(hour >= start_hour):
+                    start = dateparser.parse(feat.GetField('timestamp'))
+                    points.append(p1)
+                    continue
+                else:
+                    continue
             # if feat is after 9am and one day after start: a new track begins
             # append owl_track to track collection and set a new start
             if(timestamp.date() == start.date()+datetime.timedelta(1)):
@@ -98,7 +102,7 @@ def divideIntoTracks(layer):
                 # reset variables
                 start = None
                 points = []
-                start = dateparser.parse(feat.GetField('timestamp'))
+                #start = dateparser.parse(feat.GetField('timestamp'))
                 continue
         # if feat is on the same date and after the start add it to the track
         if(date == float(start.strftime("%d"))):
@@ -150,6 +154,7 @@ def sortOutTrack(track):
 
 ### distance formula for python 
 ### provided by:https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude 
+### not adjusted for earth's curvature, but can be neglected as measured distances are in a very small range (approx. 0 - 100m)
 def getDistance(start,end):
     # approximate radius of earth in km
     R = 6373.0
