@@ -1,3 +1,5 @@
 movebank/
 __pycache__/
 analysis/results.csv
+analysis/results.csv
+analysis/resultsb4buffer.csv
