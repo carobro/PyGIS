@@ -1,3 +1,7 @@
+## author: Carolin Bronowicz, Aysel Tandik
+## PIG course 2020
+## Group 6
+
 import matplotlib.pyplot as plt
 import ogr
 import os
