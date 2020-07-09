@@ -10,14 +10,25 @@ from Track import Track
 from Point import Point
 from math import sin, cos, sqrt, atan2, radians
 
-#owl_ids = ["1750"]
+####---- CONFIG-------#####
 owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896","3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
 
 driver = ogr.GetDriverByName('ESRI Shapefile')
 analysis_dir = os.path.join('/home','eric','Documents','PyGIS','analysis')
-csv_file = os.path.join(analysis_dir,'results6pm.csv')
+csv_file = os.path.join(analysis_dir,'results8pm.csv')
 
-start_hour = 18
+#### hour at when tracks shall be analysed
+start_hour = 20
+### distance in m with which the buffer shall be created
+buffer_distance = 20
+
+### idle time for the owls, after that time(in seconds) the owl is being marked as not hunting anymore 
+### 600 seconds = 10 minutes 
+idle_time = 1200
+####---- CONFIG-------#####
+
+
+
 ### cut microseconds for readability
 def chop_microseconds(delta):
     return delta - datetime.timedelta(microseconds=delta.microseconds)
@@ -30,6 +41,8 @@ def calculateAverages(owl):
 
     return [avgDuration,avgStart,avgEnd]
 
+
+# get averages of the duration of one owl
 def getDurationAverage(tracks):
 
     avgTracks = tracks
@@ -40,6 +53,7 @@ def getDurationAverage(tracks):
     avgDuration = datetime.timedelta(seconds=avgDuration)
     return chop_microseconds(avgDuration)
 
+# get average start time of one owl
 def getStartAverage(tracks):
     sumSeconds = 0 
     ## start average
@@ -55,6 +69,7 @@ def getStartAverage(tracks):
     avgStart = datetime.timedelta(seconds=avgStart)
     return chop_microseconds(avgStart)
 
+# get average end time of one owl
 def getEndAverage(tracks):
     sumSeconds = 0 
     for track in tracks:
@@ -70,6 +85,9 @@ def getEndAverage(tracks):
 
     return chop_microseconds(avgEnd) 
 
+# divide the shapefile of one owl to individual hunting tracks
+# owls hunt are active from dawn till early morning 
+# with this criteria individual hunting days can be detected and seperated 
 def divideIntoTracks(layer):
 
     owl_tracks = []
@@ -115,6 +133,10 @@ def divideIntoTracks(layer):
                 continue
     return owl_tracks
 
+# Filter a track when a owl stopped hunting 
+# 2 criteria apply for if an owl is active or not:
+#           - has not moved for more than 20meters  for a duration of 20 minutes
+# this threshold can be edited in the config variable part of this script above 
 def sortOutTrack(track):
 
     endtime = None
@@ -126,13 +148,14 @@ def sortOutTrack(track):
 
     for index,point in enumerate(track.points):
         hour = float(point.time.strftime("%H"))
+        ### track has to end somewhere in this time frame
         if(not(hour>0 and hour<6)):
             continue
-        if(getDistance(start,point) < 20):
+        if(getDistance(start,point) < buffer_distance):
             if(watching):
                 duration = point.time - start.time
                 duration = duration.total_seconds()
-                if(duration>1200):
+                if(duration>idle_time):
                 #    print("End of hunting found at %s" % point.time)
                     startIndex = index
                     break
