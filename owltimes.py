@@ -77,7 +77,6 @@ def divideIntoTracks(layer):
     points = []
 
     for feat in layer:
-
         timestamp = dateparser.parse(feat.GetField('timestamp'))
 
         hour = float(timestamp.strftime("%H"))
@@ -185,11 +184,12 @@ def __main__():
         shapefile = os.path.join(data_dir,'%s.shp' % owl)
         data_source = driver.Open(shapefile, 0)
         layer = data_source.GetLayer(0)
+        owltype = layer[0].GetField('Owl_Type')
         # iterate each point in the shapefile
         print("Dividing shapefile into individual tracks")
         owl_tracks = divideIntoTracks(layer)
 
-        owl1 = Owl(owl,owl_tracks)
+        owl1 = Owl(owl,owl_tracks,owltype)
         owls.append(owl1)
         print("Calculating averages")
         analysis = calculateAverages(owl1)
@@ -198,7 +198,7 @@ def __main__():
         print("Writing to csv...")
         with open(csv_file,'a',newline='') as csvfile:
             writer = csv.writer(csvfile,delimiter=',')
-            newrow = [owl1.id,analysis[0],analysis[1],analysis[2]]
+            newrow = [owl1.id,analysis[0],analysis[1],analysis[2],owl1.owltype]
             writer.writerow(newrow)
             print("...new line added: %s" % newrow)
             print("")
