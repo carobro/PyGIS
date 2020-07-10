@@ -12,13 +12,14 @@ from math import sin, cos, sqrt, atan2, radians
 
 ####---- CONFIG-------#####
 owl_ids = ["1750", "1751", "1753", "1754", "1292", "3893", "3892", "3894", "3895", "3896","3897", "3899", "3898", "4043", "4044", "4045", "4046", "5158", "5159", "4846", "4848"]
+#owl_ids = ["5158"]
 
 driver = ogr.GetDriverByName('ESRI Shapefile')
 analysis_dir = os.path.join('/home','eric','Documents','PyGIS','analysis')
-csv_file = os.path.join(analysis_dir,'results8pm.csv')
+csv_file = os.path.join(analysis_dir,'resultsStartBuffer.csv')
 
 #### hour at when tracks shall be analysed
-start_hour = 20
+start_hour = 16
 ### distance in m with which the buffer shall be created
 buffer_distance = 20
 
@@ -141,9 +142,11 @@ def sortOutTrack(track):
 
     endtime = None
     # set start position 
+
+    # if no start and end are found take the whole track
     start = track.points[0]
-    startIndex = len(track.points)-1
-    # create buffer around point (10m) 
+    endIndex = len(track.points)-1
+    startIndex = 0
     watching = False
 
     for index,point in enumerate(track.points):
@@ -157,7 +160,9 @@ def sortOutTrack(track):
                 duration = duration.total_seconds()
                 if(duration>idle_time):
                 #    print("End of hunting found at %s" % point.time)
-                    startIndex = index
+                    endIndex = index
+                    start = track.points[0]
+                    watching = False
                     break
                 # else:
         # print("found point inside 10m radius; continue watching")
@@ -172,8 +177,23 @@ def sortOutTrack(track):
                 watching = False
     
 
-    newTrack = Track(track.start,track.points[:startIndex])
+    for index,point in enumerate(track.points):
+        hour = float(point.time.strftime("%H"))
+        #print("Now looking at point: %s" % point.time)
+        if(not(hour>16 and hour<21)):
+            continue
+        if(getDistance(start,point) > buffer_distance):
+            startIndex = index
+            print("Owls has moved outside the buffer distance at %s" % point.time)
+            break
+        else:
+            start = point
+            continue 
+
+
+    newTrack = Track(track.start,track.points[startIndex:endIndex])
     return newTrack
+
 
 ### distance formula for python 
 ### provided by:https://stackoverflow.com/questions/19412462/getting-distance-between-two-points-based-on-latitude-longitude 
