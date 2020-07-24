@@ -5,7 +5,7 @@ import osr
 
 # Get a Layer
 data_dir = os.path.join('C:\\', 'Users', 'caro1','Downloads','movebank', 'movebank')
-inShapefile = os.path.join(data_dir, 'eagle_owl','basemap_102013.shp')
+inShapefile = os.path.join(data_dir, 'eagle_owl','Eagle owl Reinhard Vohwinkel MPIO', 'points.shp')
 driver = ogr.GetDriverByName("ESRI Shapefile")
 inDataSource = driver.Open(inShapefile, 0)
 layer = inDataSource.GetLayer()
