@@ -55,17 +55,18 @@ for i,j in zip(u,r):
     layer = track.GetLayer(0)
     layer2 = track2.GetLayer(0)
     # Access single features in the places layer
-    # And plot them
+    # Get the values from the Area Attribute
     for feat,feat2 in zip(layer,layer2):
         print(feat.GetField('Area'))
-        size = feat.GetField('Area')*1000000
-        size2 = feat2.GetField('Area')*1000000
+        size = feat.GetField('Area')/1000000
+        size2 = feat2.GetField('Area')/1000000
     area_u.append(size)
     area_r.append(size2)
         
 print(area_u)
 print(area_r)
 
+## statistics
 mean_u = round(sum(area_u)/len(area_u), 3)
 print("Mean urban area is:")
 print(mean_u)
@@ -73,19 +74,11 @@ mean_r = round(sum(area_r)/len(area_r), 3)
 print("Mean rural area is:")
 print(mean_r)
 
-
+# Make out boxplot
 plt.boxplot([area_u, area_r], labels=["Urban", "Rural"])
 plt.suptitle('Owl Hunting Area')
 plt.xlabel("Owl types")
-plt.ylabel("UNITS?")
-
-#fig, (ax1, ax2) = plt.subplots(1,2, sharey  = 'all')
-#ax2.boxplot(area_r)
-#ax2.set_title("Owls hunting in rural areas")
-#ax1.boxplot(area_u)
-#ax1.set_title("Owls hunting in urban areas")
-#
-#fig.suptitle('Size of Owl Hunting Areas')
+plt.ylabel("square kilometre")
 
 
 plt.show()
